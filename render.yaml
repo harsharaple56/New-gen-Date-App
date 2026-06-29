@@ -1,0 +1,75 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy the Align backend (Node + Socket.IO) and the admin panel (static site).
+# Postgres is provided by Supabase/Neon (set DATABASE_URL manually). A managed
+# Redis instance is provisioned here to power the Socket.IO adapter.
+
+services:
+  # ----------------------------------------------------------------------- API
+  - type: web
+    name: align-api
+    runtime: node
+    plan: starter            # 'free' has no persistent Redis link / spins down
+    rootDir: backend
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod   # runs `prisma migrate deploy` then boots
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      # Set in the Render dashboard (Supabase/Neon pooled connection string).
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Comma-separated allowed origins (admin panel + Expo app).
+      - key: CLIENT_URL
+        sync: false
+      - key: OTP_DEV_MODE
+        value: "false"
+      # Wired automatically from the Redis service below.
+      - key: REDIS_URL
+        fromService:
+          name: align-redis
+          type: redis
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+  # --------------------------------------------------------------- Admin panel
+  - type: web
+    name: align-admin
+    runtime: static
+    rootDir: frontend-admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Vite build-time API base, e.g. https://align-api.onrender.com/api
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # --------------------------------------------------------- Redis (Socket.IO)
+  # Cross-instance message fan-out for the Socket.IO Redis adapter.
+  - type: redis
+    name: align-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: noeviction
+    ipAllowList: []          # only reachable from Render services

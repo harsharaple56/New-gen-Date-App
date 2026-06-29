@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Align",
+    "slug": "align-dating-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/REPLACE_WITH_EAS_PROJECT_ID"
+    },
+    "splash": {
+      "backgroundColor": "#F4F5F7"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.align"
+    },
+    "android": {
+      "package": "com.yourcompany.align",
+      "adaptiveIcon": {
+        "backgroundColor": "#F4F5F7"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
+    }
+  }
+}

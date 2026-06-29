@@ -1,0 +1,235 @@
+### Align API — manual test requests (VS Code REST Client)
+@base = http://localhost:5000/api
+@token = PASTE_USER_TOKEN_HERE
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@chatId = PASTE_CHAT_ID
+@userId = PASTE_USER_ID
+
+############################################
+# Auth
+############################################
+
+### Register
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{ "phone": "+919812345678", "email": "newuser@example.com", "password": "password123" }
+
+### Login (email/password)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "aarav@example.com", "password": "password123" }
+
+### Send OTP
+POST {{base}}/auth/send-otp
+Content-Type: application/json
+
+{ "phone": "+919812345678" }
+
+### Verify OTP (dev OTP is 123456)
+POST {{base}}/auth/verify-otp
+Content-Type: application/json
+
+{ "phone": "+919812345678", "otp": "123456" }
+
+### Me
+GET {{base}}/auth/me
+Authorization: Bearer {{token}}
+
+############################################
+# Profile
+############################################
+
+### Create / update profile
+POST {{base}}/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "Test User", "age": 27, "gender": "male", "bio": "Hello!", "location": "Mumbai", "latitude": 19.07, "longitude": 72.88 }
+
+### Get my profile
+GET {{base}}/profile/me
+Authorization: Bearer {{token}}
+
+### Set interests
+POST {{base}}/profile/interests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "interestIds": ["PASTE_INTEREST_ID"] }
+
+### Set preferences
+POST {{base}}/profile/preferences
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "minAge": 22, "maxAge": 35, "distanceKm": 50, "genderPreference": "female" }
+
+############################################
+# Discovery + Swipe + Match
+############################################
+
+### Discover
+GET {{base}}/users/discover
+Authorization: Bearer {{token}}
+
+### Swipe
+POST {{base}}/swipes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "swipedUserId": "{{userId}}", "action": "LIKE" }
+
+### Matches
+GET {{base}}/matches
+Authorization: Bearer {{token}}
+
+### Unmatch
+DELETE {{base}}/matches/PASTE_MATCH_ID
+Authorization: Bearer {{token}}
+
+############################################
+# Intros
+############################################
+
+### Send intro
+POST {{base}}/intros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "receiverId": "{{userId}}", "message": "Hi, would love to connect!" }
+
+### Received intros
+GET {{base}}/intros/received
+Authorization: Bearer {{token}}
+
+### Respond to intro
+POST {{base}}/intros/PASTE_INTRO_ID/respond
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "ACCEPTED" }
+
+############################################
+# Chat
+############################################
+
+### List chats
+GET {{base}}/chats
+Authorization: Bearer {{token}}
+
+### Get messages
+GET {{base}}/chats/{{chatId}}/messages
+Authorization: Bearer {{token}}
+
+### Send message
+POST {{base}}/chats/{{chatId}}/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "text": "Hey there!" }
+
+### Mark read
+PATCH {{base}}/chats/{{chatId}}/read
+Authorization: Bearer {{token}}
+
+############################################
+# Report / Block
+############################################
+
+### Report a user
+POST {{base}}/reports
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "reportedUserId": "{{userId}}", "reason": "Spam", "description": "Sending spam links" }
+
+### Block
+POST {{base}}/blocks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "blockedUserId": "{{userId}}" }
+
+### Unblock
+DELETE {{base}}/blocks/{{userId}}
+Authorization: Bearer {{token}}
+
+### List blocked
+GET {{base}}/blocks
+Authorization: Bearer {{token}}
+
+############################################
+# Subscription
+############################################
+
+### My subscription
+GET {{base}}/subscription/me
+Authorization: Bearer {{token}}
+
+### Create subscription
+POST {{base}}/subscription/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "plan": "PREMIUM", "provider": "razorpay" }
+
+### Confirm subscription
+PATCH {{base}}/subscription/confirm
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "paymentId": "pay_test_123", "status": "ACTIVE" }
+
+############################################
+# Admin
+############################################
+
+### Admin login
+POST {{base}}/admin/login
+Content-Type: application/json
+
+{ "email": "admin@align.app", "password": "admin123" }
+
+### Dashboard
+GET {{base}}/admin/dashboard
+Authorization: Bearer {{adminToken}}
+
+### Users (paginated)
+GET {{base}}/admin/users?page=1&limit=20&search=
+Authorization: Bearer {{adminToken}}
+
+### Block a user
+PATCH {{base}}/admin/users/{{userId}}/block
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "isBlocked": true }
+
+### Delete a user
+DELETE {{base}}/admin/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+
+### Reports
+GET {{base}}/admin/reports?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### Action a report
+PATCH {{base}}/admin/reports/PASTE_REPORT_ID/action
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "ACTION_TAKEN", "blockUser": true }
+
+### Matches
+GET {{base}}/admin/matches?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### Chats
+GET {{base}}/admin/chats?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+
+### Subscriptions
+GET {{base}}/admin/subscriptions?page=1&limit=20
+Authorization: Bearer {{adminToken}}
